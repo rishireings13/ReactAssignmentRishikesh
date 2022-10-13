@@ -1,23 +1,59 @@
-import React, { useContext } from "react";
-import { TaskContext } from "../../App";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { Delete_all_card, save } from "../../Redux/Actions/action";
+import Actions from "../actions/Action";
 import "./formComponent.css";
 export default function FormComponent() {
-  const state = useContext(TaskContext);
-  const [task, setTask] = state.task;
+  const dispatch = useDispatch();
+  const [inputName, setInputName] = useState("");
+  const [inputTitle, setInputTitle] = useState("");
+  const [inputMain, setInputMain] = useState("");
   const currentDate = new Date().toDateString();
-
-  const onChangeInput = (e) => {
-    const { name, value } = e.target;
-    setTask({ ...task, [name]: value });
+  const createNewTile = () => {
+    if (!inputName.trim()) return alert("Name field is Empty");
+    if (!inputMain.trim()) return alert("main field is Empty");
+    if (!inputTitle.trim()) return alert("title field is Empty");
+    const data = {
+      name: inputName,
+      title: inputTitle,
+      describe: inputMain,
+    };
+    dispatch(save(data));
+    clearInputs();
   };
+  const clearInputs = () => {
+    setInputName("");
+    setInputMain("");
+    setInputTitle("");
+  }
+  const handleInputName = (e) => {
+    setInputName(e.target.value);
+  };
+  const handleInputTitle = (e) => {
+    setInputTitle(e.target.value);
+  };
+  const handleInputMain = (e) => {
+    setInputMain(e.target.value);
+  };
+
   return (
     <article>
+      <Actions
+        onClickSave={() => {
+          createNewTile();
+        }}
+        deleteAll={() => {
+          dispatch(Delete_all_card());
+        }}
+        clearInputs={clearInputs}
+      />
+
       <div className="input-group mb-3">
         <span className="input-group-text">Created On</span>
         <input
           type="text"
           className="form-control"
-          value={task.created || currentDate}
+          value={currentDate}
           readOnly
           aria-describedby="basic-addon3"
         ></input>
@@ -28,9 +64,9 @@ export default function FormComponent() {
           type="text"
           className="form-control"
           aria-describedby="basic-addon3"
-          value={task.for}
+          value={inputName}
+          onChange={handleInputName}
           name="for"
-          onChange={onChangeInput}
         ></input>
       </div>
       <div className="input-group mb-3">
@@ -38,10 +74,10 @@ export default function FormComponent() {
         <input
           type="text"
           className="form-control"
-          value={task.title}
           aria-describedby="basic-addon3"
           name="title"
-          onChange={onChangeInput}
+          value={inputTitle}
+          onChange={handleInputTitle}
         ></input>
       </div>
       <div className="input-group">
@@ -49,9 +85,9 @@ export default function FormComponent() {
         <textarea
           className="form-control"
           aria-label="With textarea"
-          value={task.content}
           name="content"
-          onChange={onChangeInput}
+          value={inputMain}
+          onChange={handleInputMain}
         ></textarea>
       </div>
     </article>
